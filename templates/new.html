@@ -1,0 +1,25 @@
+{% extends 'flatpages/default.html' %}
+
+{% load custom_filters %}
+
+{% load custom_tags %}
+
+{% block content %}
+   {% if post %}
+       <table>
+           <tr>
+               <td>Название</td>
+               <td>Текст</td>
+               <td>Дата загрузки</td>
+           </tr>
+           <tr>
+               <td>{{ post.title }}</td>
+               <td>{{ post.text|censor }}</td>
+               <td>{{ post.post_time|date:'d M y' }}</td>
+           </tr>
+
+       </table>
+   {% else %}
+       <h2></h2>
+   {% endif %}
+{% endblock content %}
