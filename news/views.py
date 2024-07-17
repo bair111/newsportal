@@ -6,6 +6,7 @@ from .models import Post
 from .filters import PostFilter
 from .forms import PostForm
 from django.urls import reverse_lazy
+from django.http import HttpResponseRedirect
 
 
 class PostList(ListView):
@@ -15,16 +16,21 @@ class PostList(ListView):
     context_object_name = 'posts'
     paginate_by = 10
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        self.filterset = PostFilter(self.request.GET, queryset)
+        return self.filterset.qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['filterset'] = self.filterset
+        return context
+
 
 class PostDetail(DetailView):
     model = Post
     template_name = 'new.html'
     context_object_name = 'post'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['time_now'] = datetime.utcnow()
-        return context
 
 
 class PostSearch(ListView):
@@ -45,11 +51,19 @@ class PostSearch(ListView):
         return context
 
 
-class PostCreate(CreateView):
-    form_class = PostForm
-    model = Post
-    template_name = 'post_create.html',
-    context_object_name = 'post_create'
+
+
+def create_post(request):
+    form = PostForm()
+
+    if request.method == 'POST':
+        form = PostForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect('/post/')
+
+
+    return render(request, 'post_create.html', {'form': form})
 
     def form_valid(self, form):
         post = form.save(commit=False)

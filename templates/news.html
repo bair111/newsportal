@@ -12,6 +12,10 @@ News
    <h1>Все новости</h1>
    <h3>{{ time_now|date:'d M Y' }}</h3>
    <h6>Всего новостей - {{ posts| length }}</h6>
+   <form action="" method="get">
+       {{ filterset.form.as_p }}
+       <input type="submit" value="Найти" />
+   </form>
    <hr>
    {% if posts %}
        <table>
