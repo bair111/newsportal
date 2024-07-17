@@ -11,9 +11,9 @@ News
 {% block content %}
    <h1>Все новости</h1>
    <h3>{{ time_now|date:'d M Y' }}</h3>
-   <h6>Всего новостей - {{ news | length }}</h6>
+   <h6>Всего новостей - {{ posts| length }}</h6>
    <hr>
-   {% if news %}
+   {% if posts %}
        <table>
            <tr>
                <td>Заголовок</td>
@@ -21,7 +21,7 @@ News
                <td>Текст</td>
            </tr>
 
-           {% for post in news %}
+           {% for post in posts %}
            <tr>
                <td>{{ post.title }}</td>
                <td>{{ post.post_time|date:'d M y' }}</td>
@@ -33,4 +33,22 @@ News
    {% else %}
        <h2>Новостей нет!</h2>
    {% endif %}
+   {% if page_obj.has_previous %}
+       <a href="?{% url_replace page=1 %}">1</a>
+       {% if page_obj.previous_page_number != 1 %}
+           ...
+           <a href="?{% url_replace page=page_obj.previous_page_number %}">{{ page_obj.previous_page_number }}</a>
+       {% endif %}
+   {% endif %}
+
+   {{ page_obj.number }}
+
+   {% if page_obj.has_next %}
+       <a href="?{% url_replace page=page_obj.next_page_number %}">{{ page_obj.next_page_number }}</a>
+       {% if paginator.num_pages != page_obj.next_page_number %}
+           ...
+           <a href="?{% url_replace page=page_obj.next_page_number %}">{{ page_obj.paginator.num_pages }}</a>
+       {% endif %}
+   {% endif %}
+
 {% endblock content %}
