@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from django.contrib.auth.decorators import permission_required
 from django.shortcuts import render
 from django.views.generic import ListView, DetailView, UpdateView, DeleteView, CreateView
 from .models import Post
@@ -7,6 +8,7 @@ from .filters import PostFilter
 from .forms import PostForm
 from django.urls import reverse_lazy
 from django.http import HttpResponseRedirect
+from django.contrib.auth.mixins import PermissionRequiredMixin
 
 
 class PostList(ListView):
@@ -51,8 +53,6 @@ class PostSearch(ListView):
         return context
 
 
-
-
 def create_post(request):
     form = PostForm()
 
@@ -62,17 +62,18 @@ def create_post(request):
             form.save()
             return HttpResponseRedirect('/post/')
 
-
     return render(request, 'post_create.html', {'form': form})
 
-    def form_valid(self, form):
-        post = form.save(commit=False)
-        if self.request.path == '/articles/create/':
-            post.post_type = 'AR'
-        return super().form_valid(form)
+
+def form_valid(self, form):
+    post = form.save(commit=False)
+    if self.request.path == '/articles/create/':
+        post.post_type = 'AR'
+    return super().form_valid(form)
 
 
-class PostUpdate(UpdateView):
+class PostUpdate(PermissionRequiredMixin, UpdateView):
+    permission_required
     form_class = PostForm
     model = Post
     template_name = 'post_edit.html'
