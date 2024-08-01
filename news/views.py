@@ -2,6 +2,7 @@ from datetime import datetime
 
 from django.contrib.auth.decorators import permission_required
 from django.shortcuts import render
+from django.views import View
 from django.views.generic import ListView, DetailView, UpdateView, DeleteView, CreateView
 from .models import Post
 from .filters import PostFilter
@@ -9,6 +10,7 @@ from .forms import PostForm
 from django.urls import reverse_lazy
 from django.http import HttpResponseRedirect
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.views.generic.edit import CreateView
 
 
 class PostList(ListView):
@@ -84,3 +86,12 @@ class PostDelete(DeleteView):
     model = Post
     template_name = 'post_delete.html'
     success_url = reverse_lazy('posts')
+
+
+class MyView(PermissionRequiredMixin, View):
+    permission_required = ('news.add_post',
+                           'news.change_post')
+
+
+class AddPost(PermissionRequiredMixin, CreateView):
+    permission_required = ('news.add_post',)
