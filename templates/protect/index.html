@@ -1,8 +1,63 @@
-{% extends "main.html" %}
+{% extends 'flatpages/default.html' %}
+
+{% load custom_filters %}
+
+{% load custom_tags %}
 
 {% block content %}
 <h2>Страница авторизованного пользователя {{request.user.username}}</h2>
 <div> Здесь может содержаться персональная информация для каждого пользователя </div>
+   <h1>Все новости</h1>
+   <h3>{{ time_now|date:'d M Y' }}</h3>
+   <h6>Всего новостей - {{ posts| length }}</h6>
+   <form action="" method="get">
+       {{ filterset.form.as_p }}
+       <input type="submit" value="Найти" />
+   </form>
+   <hr>
+   {% if posts %}
+       <table>
+           <tr>
+               <td>Заголовок</td>
+               <td>Категории</td>
+               <td>Дата публикации</td>
+               <td>Текст</td>
+           </tr>
+
+           {% for post in posts %}
+           <tr>
+               <td>{{ post.title }}</td>
+               <td>{{ post.post_time|date:'d M y' }}</td>
+               <td>{{ post.text|truncatechars:20  }}</td>
+               <td>
+                   {% for category in post.category.all %}
+                       <a href="{% url 'category_list' category.id %}">{{category }}</a>
+                   {% endfor %}
+               </td>
+           </tr>
+           {% endfor %}
+
+       </table>
+   {% else %}
+       <h2>Новостей нет!</h2>
+   {% endif %}
+   {% if page_obj.has_previous %}
+       <a href="?{% url_replace page=1 %}">1</a>
+       {% if page_obj.previous_page_number != 1 %}
+           ...
+           <a href="?{% url_replace page=page_obj.previous_page_number %}">{{ page_obj.previous_page_number }}</a>
+       {% endif %}
+   {% endif %}
+
+   {{ page_obj.number }}
+
+   {% if page_obj.has_next %}
+       <a href="?{% url_replace page=page_obj.next_page_number %}">{{ page_obj.next_page_number }}</a>
+       {% if paginator.num_pages != page_obj.next_page_number %}
+           ...
+           <a href="?{% url_replace page=page_obj.next_page_number %}">{{ page_obj.paginator.num_pages }}</a>
+       {% endif %}
+   {% endif %}
 
 <button> <a href="sign/logout/">Выйти</a> </button>
 {% if is_not_premium %}

@@ -9,6 +9,9 @@ News
 {% endblock title %}
 
 {% block content %}
+    {% if is_not_subscriber %}
+        <p class="text-center"><a href="{% url 'subscribe' category.id %}" class="btn btn-secondary btn-sm">Подписаться</a></p>
+    {% endif %}
    <h1>Все новости</h1>
    <h3>{{ time_now|date:'d M Y' }}</h3>
    <h6>Всего новостей - {{ posts| length }}</h6>
@@ -17,7 +20,7 @@ News
        <input type="submit" value="Найти" />
    </form>
    <hr>
-   {% if posts %}
+   {% if category_news_list %}
        <table>
            <tr>
                <td>Заголовок</td>
@@ -26,7 +29,7 @@ News
                <td>Текст</td>
            </tr>
 
-           {% for post in posts %}
+           {% for post in category_news_list %}
            <tr>
                <td>{{ post.title }}</td>
                <td>{{ post.post_time|date:'d M y' }}</td>
