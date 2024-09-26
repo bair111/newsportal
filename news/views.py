@@ -1,4 +1,6 @@
 from datetime import datetime
+
+from django.core.cache import cache
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.views.generic import ListView, DetailView, UpdateView, DeleteView, CreateView
@@ -33,6 +35,15 @@ class PostDetail(DetailView):
     model = Post
     template_name = 'new.html'
     context_object_name = 'post'
+    queryset = Post.objects.all()
+
+    def get_object(self, *args, **kwargs):
+        obj = cache.get(f'product-{self.kwargs["pk"]}', None)
+        if not obj:
+            obj = super().get_object(queryset=self.queryset)
+            cache.set(f'product-{self.kwargs["pk"]}', obj)
+
+        return obj
 
 
 class PostSearch(ListView):
@@ -88,13 +99,13 @@ class PostDelete(DeleteView):
     success_url = reverse_lazy('posts')
 
 
-class CategoryListView(PostList):
+class CategoryListView(ListView):
     model = PostList
     template_name = 'category_list.html'
     context_object_name = 'category_news_list'
 
     def __init__(self, **kwargs):
-        super().__init__(kwargs)
+        super().__init__(**kwargs)
         self.category = None
 
     def get_queryset(self):
